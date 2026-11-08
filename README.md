@@ -3,6 +3,10 @@
 **Paste a YouTube link → drag two handles → download the exact clip.**
 Free, open source, no signup, no ads, no uploads. Everything runs on your own machine.
 
+[![Release](https://img.shields.io/github/v/release/pemre/clip-cutter-youtube?color=8b5cff)](https://github.com/pemre/clip-cutter-youtube/releases)
+[![License](https://img.shields.io/github/license/pemre/clip-cutter-youtube?color=3ecf8e)](LICENSE)
+[![Live demo](https://img.shields.io/badge/demo-live-c084fc)](https://pemre.github.io/clip-cutter-youtube/)
+
 ![Clip Cutter UI](docs/hero.png)
 
 ---
@@ -16,6 +20,8 @@ You know that one 40-second moment in a 90-minute video? Clip Cutter grabs **onl
 3. Hit **Cut clip**. You get an MP4 of just that part, in full quality.
 
 You see and hear the video while you choose, so you never guess timestamps.
+
+![Dragging the handles](docs/demo.gif)
 
 ---
 
@@ -80,6 +86,20 @@ browser ──▶ server.py
 * The preview copy is small on purpose: scrubbing must feel instant. The final clip is always rendered at up to 1080p from the original stream.
 * Handles, keyboard nudges and file names all go through the same `setSide()` state function — one source of truth for start/end.
 * No frameworks, no build step, no `node_modules`. One HTML file, one Python file.
+
+---
+
+## For agents
+
+Machine-readable summary lives in [`llms.txt`](llms.txt); repo conventions and pitfalls in [`AGENTS.md`](AGENTS.md). Short version:
+
+- **Run headlessly:** `python3 server.py` → `http://localhost:8917`. Only dependencies: `yt-dlp`, `ffmpeg`, Python 3.9+. No build step, no `npm install`.
+- **Two entry points,** no auth:
+  - `POST /api/cut` with `{"url","start","end","name"}` (seconds, float) → `{"id"}`; poll `GET /api/job?id=` → `{"state":"running|done|error","progress":0-100,"file"}`; the file is served at `/out/<file>` with Range support.
+  - `GET /api/preview?url=` → `{"src":"/cache/<id>.mp4","title"}` — small 360p copy for scrubbing.
+- **Pure CLI equivalent** (no server): `yt-dlp --download-sections "*00:22:17.364-00:33:07.611" --force-keyframes-at-cuts -f "bv*[height<=1080]+ba/b" --merge-output-format mp4 -o clip.mp4 <url>`.
+- **Do not embed the YouTube player.** Many videos are not embeddable (`oEmbed` returns 401) — that is why the preview is served from a local copy.
+- **Contract when editing:** code stays English, UI strings live in `TEXT` (tr/en), media routes keep HTTP Range, `IN`/`OUT` in milliseconds are the single source of truth.
 
 ---
 
