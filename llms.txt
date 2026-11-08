@@ -1,0 +1,21 @@
+# Clip Cutter YouTube
+
+> Local, open-source YouTube clip cutter: paste a link, drag start/end handles with
+> frame-accurate preview, download only the part you need. Python stdlib server +
+> yt-dlp + ffmpeg. No accounts, no uploads, no watermarks.
+
+Repo: https://github.com/pemre/clip-cutter-youtube
+Static demo (preview only): https://pemre.github.io/clip-cutter-youtube/
+Run locally: `git clone https://github.com/pemre/clip-cutter-youtube && cd clip-cutter-youtube && python3 server.py` → http://localhost:8917
+
+## Files
+
+- index.html: full UI (vanilla JS, TR/EN, GitHub Pages demo mode when served statically)
+- server.py: `/api/preview` (cached 360p copy), `/api/cut` (yt-dlp --download-sections), `/api/job` (progress), Range-enabled media
+- README.md: how to run, how it works, FAQ
+
+## Notes for agents
+
+- Code is English; user-facing strings live in the `TEXT` object (tr/en).
+- No build step, no dependencies beyond yt-dlp and ffmpeg.
+- Media routes must support HTTP Range; without it `<video>` seeking stalls.
